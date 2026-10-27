@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef4ea">
+<title>Fortune Teller ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#3f5a4c;
+  --size:min(84vw,50dvh,380px);
+  --font:"Fredoka","Nunito","Quicksand",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font-family:var(--font);color:var(--ink);min-height:100dvh;overflow-x:hidden;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(205,224,196,.95),transparent 42%),
+    radial-gradient(circle at 92% 88%,rgba(200,224,224,.95),transparent 46%),
+    radial-gradient(circle at 85% 12%,rgba(246,240,200,.75),transparent 34%),
+    linear-gradient(160deg,#f3f7ef,#e7efe2 55%,#eaf2f0);
+}
+.app{
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 22px);
+  touch-action:manipulation;user-select:none;-webkit-user-select:none;position:relative;z-index:1;
+}
+header{text-align:center}
+h1{
+  margin:0;font-size:clamp(2rem,9vw,2.6rem);font-weight:600;letter-spacing:.01em;
+  background:linear-gradient(90deg,#6f9a7c,#4f8f93 55%,#6f8fc9);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.sub{margin:2px 0 0;font-size:1.05rem;font-weight:500;opacity:.8}
+
+/* ---------- the fortune teller ---------- */
+.toy-wrap{position:relative;width:var(--size);height:var(--size);animation:float 3.6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+.glow{
+  position:absolute;inset:-12%;border-radius:50%;pointer-events:none;opacity:0;transform:scale(.2);
+  background:radial-gradient(circle,#fff 0%,rgba(188,214,178,.85) 38%,transparent 70%);
+  transition:transform .8s cubic-bezier(.2,.8,.2,1),opacity .6s;
+}
+.toy{
+  position:relative;width:100%;height:100%;
+  transition:transform .36s cubic-bezier(.34,1.56,.64,1);
+  filter:drop-shadow(0 12px 16px rgba(70,105,85,.3));
+}
+.toy.pop{animation:pop .55s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1)}}
+.toy::after{ /* creases */
+  content:"";position:absolute;inset:0;pointer-events:none;transition:opacity .3s;
+  border-radius:calc(var(--size)*.08);
+  background:
+    linear-gradient(to top right,transparent calc(50% - 1.5px),rgba(255,255,255,.95) calc(50% - 1.5px),rgba(255,255,255,.95) calc(50% + 1.5px),transparent calc(50% + 1.5px)),
+    linear-gradient(to bottom right,transparent calc(50% - 1.5px),rgba(255,255,255,.95) calc(50% - 1.5px),rgba(255,255,255,.95) calc(50% + 1.5px),transparent calc(50% + 1.5px));
+}
+.core{
+  position:absolute;left:50%;top:50%;width:12%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%;background:#fff;display:grid;place-items:center;pointer-events:none;
+  color:#7fa88a;font-size:calc(var(--size)*.07);line-height:1;z-index:2;transition:opacity .3s;
+}
+.flap{
+  position:absolute;inset:0;border:0;padding:0;margin:0;cursor:pointer;font:inherit;color:inherit;
+  border-radius:calc(var(--size)*.08);
+  transition:transform .8s cubic-bezier(.55,0,.2,1),opacity .6s .1s;
+}
+.flap:focus-visible{outline:3px solid var(--ink);outline-offset:-6px}
+.f-top{clip-path:polygon(0 0,100% 0,50% 50%)}
+.f-right{clip-path:polygon(100% 0,100% 100%,50% 50%)}
+.f-bottom{clip-path:polygon(0 100%,100% 100%,50% 50%)}
+.f-left{clip-path:polygon(0 0,0 100%,50% 50%)}
+.c-pink{--l:#ffe4ec;--m:#ffc2d6;--d:#ff9dbd}
+.c-blue{--l:#e3f2ff;--m:#bcdcff;--d:#86bff7}
+.c-yellow{--l:#fff9d6;--m:#ffeea0;--d:#f7d65c}
+.c-lav{--l:#f1e9ff;--m:#dacbff;--d:#b497ee}
+.toy[data-phase="0"] .flap,.toy[data-phase="2"] .flap{background:radial-gradient(circle at 50% 50%,var(--m) 0%,var(--l) 78%)}
+.toy[data-phase="1"] .flap{background:radial-gradient(circle at 50% 50%,var(--d) 0%,var(--m) 78%)}
+@media (hover:hover){.flap:hover{filter:brightness(1.05)}}
+.flap:active{filter:brightness(.93)}
+
+.label{
+  position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;gap:2px;
+  text-align:center;font-weight:600;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .25s;
+}
+.f-top .label{left:50%;top:25%}
+.f-right .label{left:75%;top:50%}
+.f-bottom .label{left:50%;top:75%}
+.f-left .label{left:25%;top:50%}
+.toy[data-phase="0"] .label{
+  width:calc(var(--size)*.17);aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.85);
+  font-size:calc(var(--size)*.09);box-shadow:0 3px 8px rgba(70,100,80,.18);
+}
+.toy[data-phase="1"] .label{font-size:calc(var(--size)*.078)}
+.toy[data-phase="2"] .label{gap:5px}
+.emo{font-size:calc(var(--size)*.1)}
+.wd{font-size:calc(var(--size)*.056)}
+.toy.folding .label{opacity:0}
+
+/* opening up at the end */
+.opening .glow{opacity:1;transform:scale(1.25)}
+.opening .toy::after,.opening .core{opacity:0}
+.opening .flap{opacity:0}
+.opening .f-top{transform:translateY(-75%) rotate(-12deg) scale(.8)}
+.opening .f-right{transform:translateX(75%) rotate(12deg) scale(.8)}
+.opening .f-bottom{transform:translateY(75%) rotate(-12deg) scale(.8)}
+.opening .f-left{transform:translateX(-75%) rotate(12deg) scale(.8)}
+.busy .flap{pointer-events:none}
+
+/* ---------- hint ---------- */
+.hint{
+  min-height:3.1rem;margin:0;padding:10px 20px;border-radius:999px;background:rgba(255,255,255,.7);
+  font-size:1.1rem;font-weight:500;text-align:center;display:grid;place-items:center;
+  box-shadow:0 4px 14px rgba(70,100,80,.15);transition:opacity .3s;
+}
+.hint:empty{opacity:0}
+.hint.pulse{animation:pulse 1.6s ease-in-out infinite}
+.hint.count{font-size:1.5rem;font-weight:600;letter-spacing:.08em}
+@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+
+/* ---------- message card ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;
+  background:rgba(45,70,55,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .45s;
+}
+.overlay.show{opacity:1;pointer-events:auto}
+.card{
+  width:min(100%,360px);max-height:86dvh;overflow:auto;text-align:center;padding:30px 24px 24px;
+  border:4px solid transparent;border-radius:30px;
+  background:linear-gradient(#fbfdf9,#fbfdf9) padding-box,linear-gradient(135deg,#b9d3ae,#a8d4cf,#c9d9f0) border-box;
+  box-shadow:0 20px 50px rgba(40,70,55,.3);
+  transform:translateY(30px) scale(.88);transition:transform .7s cubic-bezier(.34,1.56,.64,1);
+}
+.overlay.show .card{transform:none}
+.card .spark{font-size:2rem;margin:0 0 8px}
+.card h2{margin:0 0 12px;font-size:1.15rem;font-weight:500;opacity:.75}
+.card p.msg{margin:0 0 22px;font-size:clamp(1.15rem,5vw,1.4rem);line-height:1.5;font-weight:500}
+.again{
+  font:inherit;font-weight:600;font-size:1.05rem;color:#fff;border:0;cursor:pointer;
+  padding:14px 28px;min-height:52px;border-radius:999px;
+  background:linear-gradient(90deg,#7fa88a,#4f8f93);box-shadow:0 6px 16px rgba(70,120,100,.35);
+}
+.again:active{transform:scale(.97)}
+
+/* ---------- floating decoration ---------- */
+.floaters,.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.floaters{z-index:0}
+.confetti{z-index:30}
+.fl{position:absolute;bottom:-10%;opacity:0;animation:rise var(--d) linear var(--dl) infinite}
+@keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}10%,90%{opacity:.5}100%{transform:translateY(-120vh) rotate(40deg);opacity:0}}
+.cf{position:absolute;bottom:-8%;animation:burst var(--d) ease-out forwards}
+@keyframes burst{0%{transform:translate(0,0) rotate(0);opacity:1}80%{opacity:1}100%{transform:translate(var(--dx),-105vh) rotate(var(--r));opacity:0}}
+@media (prefers-reduced-motion:reduce){.floaters{display:none}.toy-wrap{animation:none}.hint.pulse{animation:none}}
+</style>
+</head>
+<body>
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<main class="app" id="app">
+  <header>
+    <h1>Fortune Teller</h1>
+    <p class="sub">net vir jou ✨</p>
+  </header>
+
+  <div class="toy-wrap" id="wrap">
+    <div class="glow"></div>
+    <div class="toy" id="toy" data-phase="0">
+      <button class="flap f-top c-pink" aria-label="Flap 1"><span class="label"></span></button>
+      <button class="flap f-right c-blue" aria-label="Flap 2"><span class="label"></span></button>
+      <button class="flap f-bottom c-yellow" aria-label="Flap 3"><span class="label"></span></button>
+      <button class="flap f-left c-lav" aria-label="Flap 4"><span class="label"></span></button>
+      <div class="core">✦</div>
+    </div>
+  </div>
+
+  <p class="hint pulse" id="hint" aria-live="polite">Klik op ’n nommer om te begin!</p>
+</main>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="card" role="dialog" aria-label="Your message">
+    <div class="spark">✨</div>
+    <h2>Jou boodskap</h2>
+    <p class="msg" id="msg" lang="af"></p>
+    <button class="again" id="again">Speel weer ✨</button>
+  </div>
+</div>
+
+<script>
+const COLORS = [
+  {word:"Pienk"}, {word:"Blou"}, {word:"Geel"}, {word:"Pers"}   // pink, blue, yellow, purple
+];
+const WISHES = [
+  {emo:"☕",word:"Koffie"}, {emo:"🌊",word:"Strand"}, {emo:"⛰️",word:"Berg"}, {emo:"☀️",word:"Son"}
+];
+const MESSAGES = [
+  "Waar ook al jy is wanneer jy die lees, hoop ek dit laat jou vir ’n oomblik glimlag",
+  "Die persoon wat die lees verdien ’n study break en ’n snack, en iemand wat vir haar sê dat sy great doen!",
+  "Besluit om eerder te procrastinate en hierdie vir jou te maak as om te leer",
+  "Iemand support jou van ver af, hy is nie goed daarin om subtle te wees nie though"
+];
+const FOLD_MS = 430;
+
+const $ = id => document.getElementById(id);
+const app = $("app"), wrap = $("wrap"), toy = $("toy"), hint = $("hint");
+const overlay = $("overlay"), msg = $("msg"), again = $("again");
+const flaps = [...document.querySelectorAll(".flap")];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+let phase = 0, order = shuffle([0,1,2,3]);
+
+function shuffle(a){
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function say(text, {pulse = false, count = false} = {}){
+  hint.textContent = text;
+  hint.classList.toggle("pulse", pulse);
+  hint.classList.toggle("count", count);
+}
+
+function setFace(p){
+  toy.dataset.phase = p;
+  flaps.forEach((f, i) => {
+    const l = f.querySelector(".label");
+    if (p === 0) l.textContent = i + 1;
+    else if (p === 1) l.textContent = COLORS[i].word;
+    else l.innerHTML = `<span class="emo">${WISHES[i].emo}</span><span class="wd">${WISHES[i].word}</span>`;
+    f.setAttribute("aria-label", l.textContent);
+  });
+}
+
+// pinch the toy open/closed, alternating axis, once per fold
+async function fold(tokens){
+  toy.classList.add("folding");
+  await sleep(250);
+  for (let i = 0; i < tokens.length; i++){
+    toy.style.transform = i % 2 === 0 ? "scale(.56,1.08) rotate(-3deg)" : "scale(1.08,.56) rotate(3deg)";
+    say(tokens.slice(0, i + 1).join(" · "), {count:true});
+    await sleep(FOLD_MS);
+  }
+  toy.style.transform = "";
+  await sleep(380);
+}
+
+async function nextFace(p){
+  toy.classList.add("pop");
+  await sleep(200);
+  setFace(p);
+  toy.classList.remove("folding");
+  await sleep(380);
+  toy.classList.remove("pop");
+}
+
+async function pick(i){
+  if (app.classList.contains("busy")) return;
+  app.classList.add("busy");
+
+  if (phase === 0){
+    const n = i + 1;
+    await fold(Array.from({length:n}, (_, k) => k + 1));
+    await nextFace(1);
+    phase = 1;
+    say("Kies nou ’n kleur!", {pulse:true});
+    app.classList.remove("busy");
+  } else if (phase === 1){
+    await fold([...COLORS[i].word.toUpperCase()]);   // one fold per letter
+    await nextFace(2);
+    phase = 2;
+    say("Laaste een – kies ’n flap!", {pulse:true});
+    app.classList.remove("busy");
+  } else if (phase === 2){
+    phase = 3;
+    say("");
+    wrap.classList.add("opening");
+    await sleep(850);
+    msg.textContent = MESSAGES[order[i]];
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+    burst();
+    again.focus({preventScroll:true});
+  }
+}
+
+async function reset(){
+  overlay.classList.remove("show");
+  overlay.setAttribute("aria-hidden", "true");
+  await sleep(400);
+  order = shuffle([0,1,2,3]);
+  setFace(0);
+  wrap.classList.remove("opening");
+  phase = 0;
+  say("Klik op ’n nommer om te begin!", {pulse:true});
+  await sleep(700);
+  app.classList.remove("busy");
+}
+
+flaps.forEach((f, i) => f.addEventListener("click", () => pick(i)));
+again.addEventListener("click", reset);
+
+// ---------- decoration ----------
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+(function floaters(){
+  const box = $("floaters"), set = ["✨","🌿","🍃","⭐","🌼","☁️"];
+  for (let i = 0; i < 12; i++){
+    const s = document.createElement("span");
+    s.className = "fl";
+    s.textContent = set[i % set.length];
+    s.style.left = rnd(2, 94) + "%";
+    s.style.fontSize = rnd(16, 30) + "px";
+    s.style.setProperty("--d", rnd(12, 22) + "s");
+    s.style.setProperty("--dl", -rnd(0, 20) + "s");
+    box.appendChild(s);
+  }
+})();
+
+function burst(){
+  const box = $("confetti"), set = ["✨","🌿","🍃","⭐","🌼","💛","🌸"];
+  for (let i = 0; i < 28; i++){
+    const s = document.createElement("span");
+    s.className = "cf";
+    s.textContent = set[Math.floor(Math.random() * set.length)];
+    s.style.left = rnd(4, 92) + "%";
+    s.style.fontSize = rnd(18, 34) + "px";
+    s.style.setProperty("--d", rnd(2.2, 3.6) + "s");
+    s.style.setProperty("--dx", rnd(-60, 60) + "px");
+    s.style.setProperty("--r", rnd(-90, 90) + "deg");
+    s.style.animationDelay = rnd(0, .5) + "s";
+    box.appendChild(s);
+    setTimeout(() => s.remove(), 4400);
+  }
+}
+
+setFace(0);
+</script>
+</body>
+</html>
